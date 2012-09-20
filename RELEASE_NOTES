@@ -1,0 +1,94 @@
+The stable Postfix release is called postfix-2.9.x where 2=major
+release number, 9=minor release number, x=patchlevel.  The stable
+release never changes except for patches that address bugs or
+emergencies. Patches change the patchlevel and the release date.
+
+New features are developed in snapshot releases. These are called
+postfix-2.10-yyyymmdd where yyyymmdd is the release date (yyyy=year,
+mm=month, dd=day).  Patches are never issued for snapshot releases;
+instead, a new snapshot is released.
+
+The mail_release_date configuration parameter (format: yyyymmdd)
+specifies the release date of a stable release or snapshot release.
+
+If you upgrade from Postfix 2.8 or earlier, read RELEASE_NOTES-2.9
+before proceeding.
+
+Incompatible changes with snapshot 20120625
+===========================================
+
+The postscreen(8)-to-smtpd(8) protocol has changed.  To avoid "cannot
+receive connection attributes" warnings and dropped connections,
+execute the command "postfix reload". No mail will be lost as long
+as the remote SMTP client tries again later.
+
+Major changes with snapshot 20120625
+====================================
+
+Support for upstream proxy agent in the postscreen(8) and smtpd(8)
+daemons.  To enable the haproxy protocol, specify one of the
+following:
+
+    postscreen_upstream_proxy_protocol = haproxy
+    smtpd_upstream_proxy_protocol = haproxy
+
+Note 1: smtpd_upstream_proxy_protocol can't be used behind postscreen.
+
+Note 2: To use the nginx proxy with smtpd(8), enable the XCLIENT
+protocol with smtpd_authorized_xclient_hosts. This supports SASL
+authentication in the proxy agent (Postfix 2.9 and later).
+
+Major changes with snapshot 20120422
+====================================
+
+This release adds support to turn off the TLSv1.1 and TLSv1.2
+protocols.  Introduced with OpenSSL version 1.0.1, these are known
+to cause inter-operability problems with for example hotmail.
+
+The radical workaround is to temporarily turn off problematic
+protocols globally:
+
+/etc/postfix/main.cf:
+    smtp_tls_protocols = !SSLv2, !TLSv1.1, !TLSv1.2
+    smtp_tls_mandatory_protocols = !SSLv2, !TLSv1.1, !TLSv1.2
+
+    smtpd_tls_protocols = !SSLv2, !TLSv1.1, !TLSv1.2
+    smtpd_tls_mandatory_protocols = !SSLv2, !TLSv1.1, !TLSv1.2
+
+However, it may be better to temporarily turn off problematic
+protocols for broken sites only:
+
+/etc/postfix/main.cf:
+    smtp_tls_policy_maps = hash:/etc/postfix/tls_policy
+
+/etc/postfix/tls_policy:
+    example.com         may protocols=!SSLv2:!TLSv1.1:!TLSv1.2
+
+Important:
+
+- Note the use of ":" instead of comma or space. Also, note that
+  there is NO space around the "=" in "protocols=".
+
+- The smtp_tls_policy_maps lookup key must match the "next-hop"
+  destination that is given to the Postfix SMTP client. If you
+  override the next-hop destination with transport_maps, relayhost,
+  sender_dependent_relayhost_maps, or otherwise, you need to specify
+  the same destination for the smtp_tls_policy_maps lookup key.
+
+Major changes with snapshot 20120306
+====================================
+
+New master "-w" option, to wait for daemon process initialization
+to complete. This feature returns an error exit status if master
+daemon initialization fails, or if it does not complete in a
+reasonable amount of time. The exit status is used by "postfix
+start" to provide more accurate information to system start-up
+scripts.
+
+Major changes with snapshot 20120303
+====================================
+
+New control for "permit" logging in smtpd_mumble_restrictions.
+Specify "smtpd_log_access_permit_actions = static:all" to log all
+"permit"-style actions, or specify a list of explicit names.  More
+details are in the postconf(5) manpage.
