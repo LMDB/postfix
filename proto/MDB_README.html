@@ -1,0 +1,109 @@
+<!doctype html public "-//W3C//DTD HTML 4.01 Transitional//EN"
+        "http://www.w3.org/TR/html4/loose.dtd">
+
+<html>
+
+<head>
+
+<title>Postfix OpenLDAP MDB Howto</title>
+
+<meta http-equiv="Content-Type" content="text/html; charset=us-ascii">
+
+</head>
+
+<body>
+
+<h1><img src="postfix-logo.jpg" width="203" height="98" ALT="">Postfix OpenLDAP MDB Howto</h1>
+
+<hr>
+
+<h2>Introduction</h2>
+
+<p> Postfix uses databases of various kinds to store and look up
+information. Postfix databases are specified as "type:name".
+OpenLDAP MDB implements the Postfix database type "mdb".
+The name of a Postfix OpenLDAP MDB database is the name
+of the database file without the ".mdb" suffix. OpenLDAP MDB databases
+are maintained with the postmap(1) command.  </p>
+
+<p> This document describes: </p>
+
+<ol>
+
+<li> <p> How to build Postfix <a href="#with_mdb">with OpenLDAP
+MDB support</a>. </p>
+
+<li> <p> How to <a href="#configure">configure</a> MDB settings. </p>
+
+<li> <p> Missing <a href="#pthread">pthread</a> library trouble. </p>
+
+</ol>
+
+<h2><a name="with_mdb">Building Postfix with OpenLDAP MDB support</a></h2>
+
+<p> Postfix normally does not enable OpenLDAP MDB support.
+To build Postfix after you installed OpenLDAP MDB from
+source code, use something like: </p>
+
+<blockquote>
+<pre>
+% make makefiles CCARGS="-DHAS_MDB -I/usr/local/include" \
+    AUXLIBS="-L/usr/local/lib -lmdb"
+% make
+</pre>
+</blockquote>
+
+<p> Solaris needs this: </p>
+
+<blockquote>
+<pre>
+% make makefiles CCARGS="-DHAS_MDB -I/usr/local/include" \
+    AUXLIBS="-R/usr/local/lib -L/usr/local/lib -lmdb"
+% make
+</pre>
+</blockquote>
+
+<p> The exact pathnames depend on how OpenLDAP MDB was installed. </p>
+
+<h2><a name="configure">Configure MDB settings</a></h2>
+
+<p> Postfix provides a configuration parameter that controls how
+large an OpenLDAP MDB database may grow. </p>
+
+<ul>
+
+<li> <p> mdb_map_size (default: 10 MBytes per
+table).  This setting controls how large any OpenLDAP MDB database
+may grow. It must be set large enough to accommodate the largest
+table that Postfix will use. </p>
+
+</ul>
+
+<h2><a name="pthread">Missing pthread library trouble</a></h2>
+
+<p> When building Postfix fails with: </p>
+
+<blockquote>
+<pre>
+undefined reference to `pthread_mutexattr_destroy'
+undefined reference to `pthread_mutexattr_init'
+undefined reference to `pthread_mutex_lock'
+</pre>
+</blockquote>
+
+<p> Add the "-lpthread" library to the "make makefiles" command. </p>
+
+<blockquote>
+<pre>
+% make makefiles .... AUXLIBS="... -lpthread"
+</pre>
+</blockquote>
+
+<p> Source code for OpenLDAP MDB is available at
+http://www.openldap.org.
+More information is available at
+http://highlandsun.com/hyc/mdb/. </p>
+
+</body>
+
+</html>

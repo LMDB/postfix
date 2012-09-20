@@ -65,6 +65,7 @@
 #include <dict_db.h>
 #include <dict_cdb.h>
 #include <dict_dbm.h>
+#include <dict_mdb.h>
 #include <dict_sdbm.h>
 #include <dict_proxy.h>
 #include <dict_fail.h>
@@ -100,6 +101,9 @@ static const MKMAP_OPEN_INFO mkmap_types[] = {
 #ifdef HAS_DB
     DICT_TYPE_HASH, mkmap_hash_open,
     DICT_TYPE_BTREE, mkmap_btree_open,
+#endif
+#ifdef HAS_MDB
+    DICT_TYPE_MDB, mkmap_mdb_open,
 #endif
     DICT_TYPE_FAIL, mkmap_fail_open,
     0,

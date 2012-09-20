@@ -2728,6 +2728,13 @@ extern int var_db_create_buf;
 extern int var_db_read_buf;
 
  /*
+  * OpenLDAP MDB memory map size.
+  */
+#define	VAR_MDB_MAP_SIZE		"mdb_map_size"
+#define DEF_MDB_MAP_SIZE		(16 * 1024 *1024)
+extern int var_mdb_map_size;
+
+ /*
   * Named queue file attributes.
   */
 #define VAR_QATTR_COUNT_LIMIT		"queue_file_attribute_count_limit"
